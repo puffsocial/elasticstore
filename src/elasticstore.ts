@@ -1,8 +1,11 @@
 import Config from "./config"
+import { SecretManagerServiceClient } from "@google-cloud/secret-manager"
 import * as elasticsearch from "@elastic/elasticsearch"
 import * as colors from "colors"
 import * as admin from "firebase-admin"
 import Worker from "./util/Worker"
+
+const secrets = new SecretManagerServiceClient()
 
 export default class Elasticstore {
   private esClient: elasticsearch.Client
@@ -16,12 +19,20 @@ export default class Elasticstore {
   }
 
   initElasticsearch = async () => {
+    // Load password from Google Secret Manager
+    console.log(colors.grey("Grabbing secrets from Google..."))
+    const [version] = await secrets.accessSecretVersion({
+      name: "projects/790992099741/secrets/elastic_secret/versions/1",
+    })
+
     return new Promise((resolve, reject) => {
       this.esClient = new elasticsearch.Client({
-        node: `${Config.ES_PROTOCOL}://${Config.ES_HOST}:${Config.ES_PORT}`,
+        cloud: {
+          id: Config.ES_CLOUD_ID,
+        },
         auth: {
           username: Config.ES_USER,
-          password: Config.ES_PASS,
+          password: version.payload.data.toString(),
         },
         requestTimeout: Config.ES_OPTS.requestTimeout,
       })
@@ -53,18 +64,14 @@ export default class Elasticstore {
   }
 
   initFirebase = () => {
-    console.log(colors.grey("Connecting to Firebase %s"), Config.FB_URL)
+    console.log(colors.grey("Connecting to Firebase %s"), Config.FB_PROJECT_ID)
     try {
       // Initialize firebase
-      admin.initializeApp({
-        credential: Config.FB_USE_ADC ? admin.credential.applicationDefault() : admin.credential.cert(
-          Config.FB_SERVICE_ACCOUNT ? JSON.parse(Config.FB_SERVICE_ACCOUNT) : Config.FB_SERVICE_PATH
-        ),
-        databaseURL: Config.FB_URL,
-      })
+      admin.initializeApp()
     } catch (e) {
       console.log(colors.red(e.message))
     }
+    console.log(colors.green("Initialized Firebase App!"))
   }
 
   initWorker = () => Worker.register(this.esClient)
