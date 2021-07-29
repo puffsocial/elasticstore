@@ -57,7 +57,7 @@ export default class Elasticstore {
     try {
       // Initialize firebase
       admin.initializeApp({
-        credential: admin.credential.cert(
+        credential: Config.FB_USE_ADC ? admin.credential.applicationDefault() : admin.credential.cert(
           Config.FB_SERVICE_ACCOUNT ? JSON.parse(Config.FB_SERVICE_ACCOUNT) : Config.FB_SERVICE_PATH
         ),
         databaseURL: Config.FB_URL,

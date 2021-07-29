@@ -13,6 +13,7 @@ class Config {
   public FB_RES: string = process.env.FB_RES
   public FB_SERVICE_PATH: string = process.env.FB_SERVICE_PATH
   public FB_SERVICE_ACCOUNT: string = process.env.FB_SERVICE_ACCOUNT
+  public FB_USE_ADC: bool = process.env.FB_USE_ADC || false
   public ES_HOST: string = process.env.ES_HOST || "localhost"
   public ES_PORT: string = process.env.ES_PORT || "9200"
   public ES_USER: string = process.env.ES_USER || null
