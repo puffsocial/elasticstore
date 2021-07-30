@@ -1,0 +1,23 @@
+runtime: nodejs14
+service_account: elasticstore@puff-49afc.iam.gserviceaccount.com
+instance_class: B2
+
+env_variables:
+  FB_PROJECT_ID: puff-49afc
+  FB_USE_ADC: true # Use Google ADC to get required credentials for Firebase APIs automatically
+  FB_ES_COLLECTION: search # The collection ElasticStore will listen for search requests
+  FB_REQ: request
+  FB_RES: response
+
+  ES_HOST: "puff-elastic.kb.eastus2.azure.elastic-cloud.com"
+  ES_PORT: 9243
+  ES_USER: elastic
+  ES_SECRET_RESOURCE_ID: "projects/790992099741/secrets/elastic_secret/versions/1" # Grab password from GSM
+  ES_PROTOCOL: https
+  ES_CLOUD_ID: puff-elastic:ZWFzdHVzMi5henVyZS5lbGFzdGljLWNsb3VkLmNvbTo5MjQzJDZkZDUwZjJmMTU4OTQ1MDdiN2I4NTBlNDUxYTI0NjgzJDZmMDViYzZlMmQ3YzQxODVhZmMzZjVkY2E5OWE3MDE1
+
+  QUEUE_CONCURRENT: 5
+  QUEUE_DELAY: 125
+
+manual_scaling:
+  instances: 1
